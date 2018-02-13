@@ -27,6 +27,7 @@ pub struct LuaSystemData<'a> {
 
 pub struct LuaSystem {
     lua: Lua,
+    count: usize,
 }
 
 unsafe impl Send for LuaSystem {}
@@ -35,6 +36,7 @@ impl<'a> System<'a> for LuaSystem {
     type SystemData = LuaSystemData<'a>;
 
     fn run(&mut self, mut sys_data: Self::SystemData) {
+        self.count += 1;
         use self::userdata::{UserDataReadWorld, UserDataUnit, UserDataWorld};
 
         sys_data.reward.0.clear();
@@ -78,6 +80,7 @@ impl<'a> System<'a> for LuaSystem {
         }
 
         if sys_data.skip.0 {
+            println!("count {}", self.count);
             if sys_data.terminal.0 {
                 *sys_data.skip = Skip(false, None);
             } else if let Some(ref src) = sys_data.skip.1 {
@@ -94,11 +97,11 @@ impl<'a> System<'a> for LuaSystem {
 }
 impl LuaSystem {
     pub fn new() -> Self {
-        LuaSystem { lua: Lua::new() }
+        LuaSystem { lua: Lua::new(), count: 0 }
     }
 
     pub fn from_lua(lua: Lua) -> Self {
-        LuaSystem { lua: lua }
+        LuaSystem { lua: lua, count: 0 }
     }
 
     pub fn add_lua(&mut self, src: &str) -> Result<(), ScaiiError> {
@@ -162,6 +165,8 @@ impl LuaSystem {
     pub fn reset(&mut self, world: &mut World) -> Result<(), Box<Error>> {
         use engine::components::Pos;
         use engine::resources::UnitTypeMap;
+
+        self.count = 0;
 
         let units: Table = self.lua
             .eval("sky_reset(__sky_rts_rng)", Some("Restart function"))?;
