@@ -29,6 +29,7 @@ message UnitAction {
     oneof action {
         MoveTo move_to = 2;
         AttackUnit attack_unit = 3;
+        TakeItem take_item = 4;
     }
 }
 
@@ -47,6 +48,10 @@ message Pos {
 // this will be ignored.
 message MoveTo {
     required Pos pos = 1;
+}
+
+message TakeItem {
+    required uint32 item_id = 1;    
 }
 
 // Follows a given unit, attacking it until

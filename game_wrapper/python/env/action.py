@@ -11,6 +11,7 @@ class MoveList(Action):
 
     def move_unit(self, unit_id, action, target):
         self.move_list.append((unit_id, action, target))
+        print("\t"+str(self.move_list))
 
     def to_proto(self, packet, skip=False, skip_lua=None):
         from ..protos.sky_rts_pb2 import ActionList
@@ -29,6 +30,8 @@ class MoveList(Action):
                 action.move_to.pos = move[2]
             elif move[1] == "attack":
                 action.attack_unit.target_id = move[2] - 1
+            elif move[1] == "take":
+                action.take_item.target_id = move[2] - 1
             else:
                 raise "Unknown action {}".format(move[1])
 
