@@ -7,6 +7,11 @@ class TowerAction(MoveList):
                          continuous_actions=continuous_actions, env_actions=env_actions)
 
     def attack_quadrant(self, quadrant):
+        if quadrant not in [1, 2, 3, 4]:
+            raise InvalidActionError(quadrant)
+
+        self.move_list = []
+
         super().move_unit(
             self.state.id_list[0], "attack", self.state.id_list[quadrant])
 
@@ -25,3 +30,21 @@ class TowerExample(SkyRtsEnv):
         act.state = self.state
 
         return act
+
+    def actions(self):
+        return {
+            'actions': {
+                'bottom_right': 1,
+                'top_right': 2,
+                'bottom_left': 3,
+                'top_left': 4,
+            },
+            'desc': "Use action.attack_quadrant(1-4) to select \
+                a quadrant to attack"
+        }
+
+
+class InvalidActionError(Exception):
+    def __init__(self, action_taken):
+        Exception.__init__(self,
+                           "Invalid action, must be in range 1-4 (inclusive). Got {}".format(action_taken))
